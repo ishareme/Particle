@@ -17,15 +17,29 @@ function Particle(...options) {
 Particle.prototype = {
     init(options){
         if (!options[0] || !utils.$(options[0])) return new Error(`未含有${options[0]}的canvas`);
-        this.optionsDefault = {
-            background: '#FFF',
-            particleNum: 300,
-            particleR: 1.5,
-            particleSpeed: 10,
-            lineLength: 70,
-            lineWidth: 0.5,
-            mousePointColor: '#000',
-        };
+        console.log('utils.isMobile()',utils.isMobile())
+        if (utils.isMobile()){
+            this.optionsDefault = {
+                background: '#FFF',
+                particleNum: 300,
+                particleR: 0.5,
+                particleSpeed: 20,
+                lineLength: 10,
+                lineWidth: 0.2,
+                mousePointColor: '#000',
+            };
+        }
+        else {
+            this.optionsDefault = {
+                background: '#FFF',
+                particleNum: 300,
+                particleR: 1,
+                particleSpeed: 20,
+                lineLength: 60,
+                lineWidth: 0.5,
+                mousePointColor: '#000',
+            };
+        }
         this.options = utils.extend(true, this.optionsDefault, options[1]);
 
         this.canvas = utils.$(options[0]);
@@ -67,18 +81,23 @@ Particle.prototype = {
     },
     bind(ele, touchStartEvent, touchMoveEvent, touchEndEvent){
         if (!ele) return new Error('未传入元素');
-        let isTouch = ('ontouchend' in document);
+        let isTouch = utils.isMobile(), myEvent;
         let touchStart = isTouch ? 'touchstart' : 'mousedown';
         let touchMove = isTouch ? 'touchmove' : 'mousemove';
         let touchEnd = isTouch ? 'touchend' : 'mouseup';
 
         function getPoint(event) {
-            event = event || window.event;
-            event = isTouch ? event.touches[0] : event;
+            console.log('event',event)
+            myEvent = event || window.event;
+            console.log('myEvent',myEvent)
+            console.log('isTouch',isTouch)
+            console.log('event.touches[0]',event.touches[0])
+            myEvent = isTouch ? event.touches[0] : event;
+            console.log('myEvent2',myEvent)
 
-            let x = event.pageX || event.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
+            let x = myEvent.pageX || myEvent.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
             x -= ele.offsetLeft;
-            let y = event.pageY || event.clientY + document.documentElement.scrollLeft + document.body.scrollLeft;
+            let y = myEvent.pageY || myEvent.clientY + document.documentElement.scrollLeft + document.body.scrollLeft;
             y -= ele.offsetTop;
 
             return {

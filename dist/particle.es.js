@@ -103,6 +103,13 @@ var utils = {
         linear.addColorStop(0, dot1.color);
         linear.addColorStop(1, dot2.color);
         return linear;
+    },
+    isMobile: function isMobile() {
+        if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 
@@ -163,15 +170,28 @@ function Particle() {
 Particle.prototype = {
     init: function init(options) {
         if (!options[0] || !utils.$(options[0])) return new Error('\u672A\u542B\u6709' + options[0] + '\u7684canvas');
-        this.optionsDefault = {
-            background: '#FFF',
-            particleNum: 300,
-            particleR: 1.5,
-            particleSpeed: 10,
-            lineLength: 70,
-            lineWidth: 0.5,
-            mousePointColor: '#000'
-        };
+        console.log('utils.isMobile()', utils.isMobile());
+        if (utils.isMobile()) {
+            this.optionsDefault = {
+                background: '#FFF',
+                particleNum: 300,
+                particleR: 0.5,
+                particleSpeed: 20,
+                lineLength: 10,
+                lineWidth: 0.2,
+                mousePointColor: '#000'
+            };
+        } else {
+            this.optionsDefault = {
+                background: '#FFF',
+                particleNum: 300,
+                particleR: 1,
+                particleSpeed: 20,
+                lineLength: 60,
+                lineWidth: 0.5,
+                mousePointColor: '#000'
+            };
+        }
         this.options = utils.extend(true, this.optionsDefault, options[1]);
 
         this.canvas = utils.$(options[0]);
@@ -215,18 +235,24 @@ Particle.prototype = {
         var _this = this;
 
         if (!ele) return new Error('未传入元素');
-        var isTouch = 'ontouchend' in document;
+        var isTouch = utils.isMobile(),
+            myEvent = void 0;
         var touchStart = isTouch ? 'touchstart' : 'mousedown';
         var touchMove = isTouch ? 'touchmove' : 'mousemove';
         var touchEnd = isTouch ? 'touchend' : 'mouseup';
 
         function getPoint(event) {
-            event = event || window.event;
-            event = isTouch ? event.touches[0] : event;
+            console.log('event', event);
+            myEvent = event || window.event;
+            console.log('myEvent', myEvent);
+            console.log('isTouch', isTouch);
+            console.log('event.touches[0]', event.touches[0]);
+            myEvent = isTouch ? event.touches[0] : event;
+            console.log('myEvent2', myEvent);
 
-            var x = event.pageX || event.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
+            var x = myEvent.pageX || myEvent.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
             x -= ele.offsetLeft;
-            var y = event.pageY || event.clientY + document.documentElement.scrollLeft + document.body.scrollLeft;
+            var y = myEvent.pageY || myEvent.clientY + document.documentElement.scrollLeft + document.body.scrollLeft;
             y -= ele.offsetTop;
 
             return {
